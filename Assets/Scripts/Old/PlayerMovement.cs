@@ -3,103 +3,47 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] MovementCollider movementCollider;
-    private MovementCollider activeMovementCollider;
+    private MovementCollider activeMovementCollider = null;
 
-    [SerializeField] Sprite[] playerSprites;
-    [SerializeField] AudioSource playerSound;
-    [SerializeField] AudioSource musicSource;
-    [SerializeField] AudioClip[] mySounds;
-    [SerializeField] GameObject fadeIn;
-
-    AudioClip activeSound;
-
-    [SerializeField] float jumpDistance = 2.2f;
-    bool isAlive=true;
-    bool isFlying=false;
-    bool isGrounded = true;
-    bool canMove = true;
-
-    private const float GRID = 2.2f;
-
-    void Start()
-    {
-        fadeIn.GetComponent<Animation>().Play();
-    }
-
-    void CanMove() {
-        canMove=true;
-    }
+    private const int GRID = 2;
 
     void Update()
     {
-        /*if(Input.GetKeyDown(KeyCode.Escape)) { Application.Quit();}
-            if(canMove==false){ return; }
-        if (isAlive==true){
-            if(Input.GetKeyDown(KeyCode.W)) {
-            PlayerJump(KeyCode.W);
-            isGrounded=false;
-            }else if(Input.GetKeyDown(KeyCode.A)) {
-            PlayerJump(KeyCode.A);
-            isGrounded=false;
-            }else if(Input.GetKeyDown(KeyCode.S)) {
-            PlayerJump(KeyCode.S);
-            isGrounded=false;
-            }else if(Input.GetKeyDown(KeyCode.D)) {
-            PlayerJump(KeyCode.D);
-            isGrounded=false;
+        Debug.Log(Input.GetAxisRaw("Horizontal") + ", " + Input.GetAxisRaw("Vertical"));
+        if (activeMovementCollider == null)
+        {
+            if (Input.GetAxisRaw("Horizontal") == 1 && Input.GetAxisRaw("Vertical") == 0)
+            {
+                InitiateMovement(Input.GetAxisRaw("Horizontal"), 0);
             }
-        if(Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.A) ||
-           Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.D)) {
-            PlayerLand();
-            }}
-            */
-        if(Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.A) || 
-        Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D)){
-            Vector3 offset = new Vector3 (0, 90, 0);
-            activeMovementCollider = Instantiate(movementCollider, transform.position + offset, Quaternion.identity);
+            else if (Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 1)
+            {
+                InitiateMovement(0, Input.GetAxisRaw("Vertical"));
+            }
+        }
+        else if (Input.GetAxisRaw("Horizontal") < 1 && Input.GetAxisRaw("Vertical") < 1)
+        {
+            MovePlayer(activeMovementCollider.GetTargetPosition());
+            Destroy(activeMovementCollider.gameObject);
+            activeMovementCollider = null;
         }
 
-    //When pressing WASD, a movementCollider instantiates in the direction chosen.
-    //When key is held, the movementCollider keeps going in the same direction.
-    //When released, the movementCollider locks in the nearest Position Checker and the fish jumps to it.
-    //When fish arrives, destroy MovementCollider.
+        //When pressing WASD, a movementCollider instantiates in the direction chosen.
+        //When key is held, the movementCollider keeps going in the same direction.
+        //When released, the movementCollider locks in the nearest Position Checker and the fish jumps to it.
+        //When fish arrives, destroy MovementCollider.
     }
 
-    void PlayerJump(KeyCode k) {
-        if(isGrounded==false) { return; }
-        gameObject.GetComponent<SpriteRenderer>().sprite=playerSprites[1];
-        activeSound=mySounds[Random.Range(0, 2)];
-        playerSound.PlayOneShot(activeSound);
-        if(k==KeyCode.W) {
-            transform.position+=new Vector3(0, jumpDistance, 0);
-            transform.Rotate(Vector3.forward*90);
-        } else if(k==KeyCode.S) {
-            transform.position+=new Vector3(0, -jumpDistance, 0);
-            transform.Rotate(Vector3.forward*-90);
-        } else if(k==KeyCode.A) {
-            transform.position+=new Vector3(-jumpDistance, 0, 0);
-            transform.Rotate(Vector3.forward*90);
-        } else if(k==KeyCode.D) {
-            transform.position+=new Vector3(jumpDistance, 0, 0);
-            transform.Rotate(Vector3.forward*-90);
-            
-        }
+    private void InitiateMovement(float x, float y)
+    {
+        Vector3 offset = new Vector3(GRID * x, GRID * y, 0);
+        activeMovementCollider = Instantiate(movementCollider, transform.position + offset, Quaternion.identity);
+        activeMovementCollider.SetDirection(x, y);
     }
 
-    void PlayerLand() {
-        gameObject.GetComponent<SpriteRenderer>().sprite=playerSprites[0];
-        isGrounded=true;
+    private void MovePlayer(Vector3 position)
+    {
+        transform.position = position;
     }
 
-
-    void ReloadLevel() {
-        gameObject.GetComponent<TrailRenderer>().time=0;
-        gameObject.GetComponent<TrailRenderer>().enabled=false;
-        PlayerLand();
-        gameObject.GetComponent<TrailRenderer>().enabled=true;
-        gameObject.GetComponent<TrailRenderer>().time=1;
-        transform.rotation=new Quaternion(0, 0, 0, 0);
-        isAlive=true;
-        isFlying=false;
-    }
 }

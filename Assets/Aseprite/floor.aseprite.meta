@@ -123,7 +123,7 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: floor
     originalName: 
-    pivot: {x: 0.5, y: 0}
+    pivot: {x: 0.43750003, y: 0.453125}
     alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     rect:
@@ -154,8 +154,8 @@ ScriptedImporter:
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 0
-        y: 0
+        x: -198
+        y: -174
         width: 576
         height: 384
       spriteId: b9550d44334b20b4892ed5e523ffcaae
@@ -177,4 +177,4 @@ ScriptedImporter:
   generatePhysicsShape: 0
   secondarySpriteTextures: []
   spritePackingTag: 
-  canvasSize: {x: 576, y: 384}
+  canvasSize: {x: 108, y: 108}

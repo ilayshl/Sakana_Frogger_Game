@@ -11,7 +11,6 @@ public class CameraMovement : MonoBehaviour
         Vector3 currentPosition = transform.position;
         Vector3 targetPosition = new Vector3(target.position.x, target.position.y, -10) + offset;
         float distance = Vector3.Distance(currentPosition, targetPosition);
-        Debug.Log(distance);
         transform.position = 
         Vector3.MoveTowards(currentPosition, targetPosition, movementSpeed * Time.deltaTime * distance);
     }
