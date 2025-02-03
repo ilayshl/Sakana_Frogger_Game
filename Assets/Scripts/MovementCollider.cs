@@ -1,39 +1,52 @@
+using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class MovementCollider : MonoBehaviour
 {
     [SerializeField] float movementSpeed;
     private Vector3 startingPosition;
-    private Transform targetPosition;
+    private Vector3 targetPosition;
+    private bool canMove = false;
     Vector3 dir;
 
     private const int GRID = 2;
 
-    void Start()
+    void Update()
     {
+        if (canMove)
+        {
+            if (Vector3.Distance(startingPosition, transform.position) <= GRID)
+            {
+                transform.position += dir * movementSpeed * Time.deltaTime;
+            }
+        }
+    }
+
+    public void SetDirection(float x, float y)
+    {
+        dir = new Vector3(x, y, 0);
+        canMove = true;
         startingPosition = transform.position;
     }
 
-    void Update()
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if(Vector3.Distance(startingPosition, transform.position) <= GRID){
-        transform.position+=dir*movementSpeed*Time.deltaTime;
-        }
-        else{
-            Debug.Log("Can't move anymore");
+        if (other.CompareTag("Grid") && canMove == true)
+        {
+            targetPosition = other.transform.position;
         }
     }
 
-    public void SetDirection(float x, float y){
-        dir = new Vector3(x, y, 0);
+    public Vector3 GetTargetPosition()
+    {
+        canMove = false;
+        transform.position = targetPosition;
+        return targetPosition;
     }
 
-    private void OnTriggerEnter2D(Collider2D other) {
-        targetPosition = other.transform;
-        Debug.Log("New collision at " + other.transform);
-    }
-
-    public Vector3 GetTargetPosition(){
-        return targetPosition.position;
+    public void ResetTargetPosition()
+    {
+        targetPosition = Vector3.zero;
     }
 }

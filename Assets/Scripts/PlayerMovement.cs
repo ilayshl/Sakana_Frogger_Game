@@ -1,23 +1,28 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private MovementCollider movementCollider;
-    private MovementCollider activeMovementCollider = null;
     private bool isMoving = false;
+    private bool isJumping = false;
 
     private Animator animator;
 
     private const int GRID = 2;
+    private const int MINJUMPSPEED = 3; //per GRID
 
-    private void Awake() {
+    private void Awake()
+    {
         animator = GetComponentInChildren<Animator>();
+    }
+    
+    private void Start() {
+        movementCollider.transform.position = transform.position;
     }
 
     void Update()
     {
-        if (activeMovementCollider == null)
+        if (!isMoving)
         {
             if (Input.GetAxisRaw("Horizontal") != 0 && Input.GetAxisRaw("Vertical") == 0)
             {
@@ -30,32 +35,50 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (isMoving)
         {
-            if(Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0)
+            if (Input.GetAxisRaw("Horizontal") == 0 && Input.GetAxisRaw("Vertical") == 0)
             {
-            MovePlayer(activeMovementCollider.GetTargetPosition());
-            Destroy(activeMovementCollider.gameObject);
-            activeMovementCollider = null;
+                if (!isJumping) { isJumping = true; }
             }
         }
+    }
 
-        //When pressing WASD, a movementCollider instantiates in the direction chosen.
-        //When key is held, the movementCollider keeps going in the same direction.
-        //When released, the movementCollider locks in the nearest Position Checker and the fish jumps to it.
-        //When fish arrives, destroy MovementCollider.
+    private void LateUpdate()
+    {
+        if (isJumping)
+        {
+            MovePlayer(movementCollider.GetTargetPosition());
+        }
     }
 
     private void InitiateMovement(float x, float y)
     {
-        if(!isMoving){ isMoving=true; }
+        isMoving = true;
         Vector3 offset = new Vector3(GRID * x, GRID * y, 0);
-        activeMovementCollider = Instantiate(movementCollider, transform.position + offset, Quaternion.identity);
-        activeMovementCollider.SetDirection(x, y);
+        movementCollider.transform.position =  transform.position + offset;
+        movementCollider.SetDirection(x, y);
     }
 
-    private void MovePlayer(Vector3 position)
+    private void MovePlayer(Vector3 targetPosition)
     {
-        transform.position = position;
-        Debug.Log("Position is "+position);
+        if (Vector2.Distance(transform.position, targetPosition) == 0)
+        {
+            ResetMovement();
+            Debug.Log("success, can jump again");
+        }
+        else
+        {
+            float distance = Vector3.Distance(transform.position, targetPosition);
+            float jumpSpeed = Mathf.Max(MINJUMPSPEED * Time.deltaTime, MINJUMPSPEED * distance * Time.deltaTime);
+            transform.position =
+            Vector3.MoveTowards(transform.position, targetPosition, jumpSpeed);
+        }
+    }
+
+    private void ResetMovement()
+    {
+        movementCollider.ResetTargetPosition();
+        isMoving = false;
+        isJumping = false;
     }
 
 }
