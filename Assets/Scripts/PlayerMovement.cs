@@ -63,7 +63,6 @@ public class PlayerMovement : MonoBehaviour
         if (Vector2.Distance(transform.position, targetPosition) == 0)
         {
             ResetMovement();
-            Debug.Log("success, can jump again");
         }
         else
         {
@@ -76,7 +75,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void ResetMovement()
     {
-        movementCollider.ResetTargetPosition();
         isMoving = false;
         isJumping = false;
     }

@@ -45,8 +45,4 @@ public class MovementCollider : MonoBehaviour
         return targetPosition;
     }
 
-    public void ResetTargetPosition()
-    {
-        targetPosition = Vector3.zero;
-    }
 }
