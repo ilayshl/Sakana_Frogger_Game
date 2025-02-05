@@ -3,6 +3,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private MovementCollider movementCollider;
+    [SerializeField] private Transform movementGrid;
     private bool isMoving = false;
     private bool isJumping = false;
 
@@ -63,6 +64,7 @@ public class PlayerMovement : MonoBehaviour
         if (Vector2.Distance(transform.position, targetPosition) == 0)
         {
             ResetMovement();
+            movementGrid.position = targetPosition;
         }
         else
         {
